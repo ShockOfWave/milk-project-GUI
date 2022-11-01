@@ -93,14 +93,16 @@ class GUI(QMainWindow):
         fname = QFileDialog.getOpenFileName(None, 'Select file', '', 'All Files (*);;Python Files(*.py);;Text files (*.txt)')
         fname = os.path.normpath(str(fname[0]))
         self.file_name_ivium = fname.split(os.sep)[-1]
-        self.file_name_gala = fname.split(os.sep)[-3]
         self.device = 'ivium'
-        self.plots = Ivium(fname)
-        self.data = self.plots.data
-        self.graph = Plot_Graph(self.data)
-        self.display_graph()
-        self.predict_5.setEnabled(True)
-        self.predict_16.setEnabled(True)
+        try:
+            self.plots = Ivium(fname)
+            self.data = self.plots.data
+            self.graph = Plot_Graph(self.data)
+            self.display_graph()
+            self.predict_5.setEnabled(True)
+            self.predict_16.setEnabled(True)
+        except Exception as e:
+            QMessageBox.warning(self, 'Error', 'Please, select file from ivium')
 
     def display_graph(self):
         self.widget.clear()
@@ -126,44 +128,50 @@ class GUI(QMainWindow):
             self.current = np.array(self.data['column_1'])
 
     def predict_5_antibiotics(self):
-        catboost_model_evaluation = Catboost_evaluations(self.device, PATH_TO_IVIUM_5_ANTIBOITICS_MODELS, self.current)
-        catboost_model_evaluation.predict_class()
-        file_name = str(self.file_name_ivium)
-        device = str(self.device)
-        path_to_model = str(catboost_model_evaluation.path_to_model.split(os.sep)[-1])
-        binary = catboost_model_evaluation.binary_prediction
-        multi = catboost_model_evaluation.multi_prediction
-        self.table_data.loc[len(self.table_data.index)] = [file_name,
-                                                           device,
-                                                           path_to_model,
-                                                           binary,
-                                                           multi]
-        self.tableView.model().layoutChanged.emit()
-        self.tableView.resizeColumnsToContents()        
-        if binary.lower() == 'milk':
-            QMessageBox.about(self, 'Prediction', 'Predicted pure milk')
-        else:
-            QMessageBox.about(self, 'Prediction', f'Predicted {multi.lower()}')
+        try:
+            catboost_model_evaluation = Catboost_evaluations(self.device, PATH_TO_IVIUM_5_ANTIBOITICS_MODELS, self.current)
+            catboost_model_evaluation.predict_class()
+            file_name = str(self.file_name_ivium)
+            device = str(self.device)
+            path_to_model = str(catboost_model_evaluation.path_to_model.split(os.sep)[-1])
+            binary = catboost_model_evaluation.binary_prediction
+            multi = catboost_model_evaluation.multi_prediction
+            self.table_data.loc[len(self.table_data.index)] = [file_name,
+                                                            device,
+                                                            path_to_model,
+                                                            binary,
+                                                            multi]
+            self.tableView.model().layoutChanged.emit()
+            self.tableView.resizeColumnsToContents()        
+            if binary.lower() == 'milk':
+                QMessageBox.about(self, 'Prediction', 'Predicted pure milk')
+            else:
+                QMessageBox.about(self, 'Prediction', f'Predicted {multi.lower()}')
+        except Exception as e:
+            QMessageBox.warning(self, 'Error', 'Data has wrong length')
 
     def predict_16_antibiotics(self):
-        catboost_model_evaluation = Catboost_evaluations(self.device, PATH_TO_IVIUM_16_ANTIBIOTICS_MODELS, self.current)
-        catboost_model_evaluation.predict_class()
-        file_name = str(self.file_name_ivium)
-        device = str(self.device)
-        path_to_model = str(catboost_model_evaluation.path_to_model.split(os.sep)[-1])
-        binary = catboost_model_evaluation.binary_prediction
-        multi = catboost_model_evaluation.multi_prediction
-        self.table_data.loc[len(self.table_data.index)] = [file_name,
-                                                           device,
-                                                           path_to_model,
-                                                           binary,
-                                                           multi]
-        self.tableView.model().layoutChanged.emit()
-        self.tableView.resizeColumnsToContents()        
-        if binary.lower() == 'milk':
-            QMessageBox.about(self, 'Prediction', 'Predicted pure milk')
-        else:
-            QMessageBox.about(self, 'Prediction', f'Predicted {multi.lower()}')                                                   
+        try:
+            catboost_model_evaluation = Catboost_evaluations(self.device, PATH_TO_IVIUM_16_ANTIBIOTICS_MODELS, self.current)
+            catboost_model_evaluation.predict_class()
+            file_name = str(self.file_name_ivium)
+            device = str(self.device)
+            path_to_model = str(catboost_model_evaluation.path_to_model.split(os.sep)[-1])
+            binary = catboost_model_evaluation.binary_prediction
+            multi = catboost_model_evaluation.multi_prediction
+            self.table_data.loc[len(self.table_data.index)] = [file_name,
+                                                            device,
+                                                            path_to_model,
+                                                            binary,
+                                                            multi]
+            self.tableView.model().layoutChanged.emit()
+            self.tableView.resizeColumnsToContents()        
+            if binary.lower() == 'milk':
+                QMessageBox.about(self, 'Prediction', 'Predicted pure milk')
+            else:
+                QMessageBox.about(self, 'Prediction', f'Predicted {multi.lower()}')
+        except Exception as e:
+            QMessageBox.warning(self, 'Error', 'Data has wrong length')
 
 
 def main():
