@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+
+class Ivium:
+    def __init__(self, fname):
+        self.fname = fname
+        self.cycle_len = 1040
+        self.current = None
+        self.voltage = None
+        self.file = self.read_file()
+        self.current = self.get_current()
+        self.voltage = self.get_voltage()
+        self.data = pd.DataFrame(data={
+            'column_0': self.voltage,
+            'column_1': self.current
+        }, dtype=np.float64)
+
+
+    def read_file(self):
+        data = []
+        with open(self.fname, 'r') as f:
+            for line in f.readlines():
+                data.append(line.strip().split(' '))
+            f.close()
+        prepared_data = []
+        for line in data:
+            prepared_data.append([x for x in line if x])
+        return prepared_data[1:]
+
+    def get_current(self):
+        current = []
+        for value in self.file:
+            current.append(value[2])
+        return current
+
+    def get_voltage(self):
+        voltage = []
+        for value in self.file:
+            voltage.append(value[1])
+        return voltage
